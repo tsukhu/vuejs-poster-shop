@@ -1,5 +1,7 @@
 var PRICE = 9.99;
 var LOAD_NUM = 10;
+var ANIME_SEARCH_JSON = 'mock-landing-data.json';
+var OTHER_SEARCH_JSON = 'mock-data.json';
 
 new Vue({
     el: '#app',
@@ -11,7 +13,8 @@ new Vue({
         newSearch: 'anime',
         lastSearch: '',
         loading: false,
-        price: 9.99
+        price: 9.99,
+        offline: true // Set to true to hit the actual api
     },
     computed: {
         noMoreItems: function () {
@@ -30,7 +33,15 @@ new Vue({
             if (this.newSearch.length) {
                 this.items = [];
                 this.loading = true;
-                this.$http.get('/search/'.concat(this.newSearch))
+                var searchURL = '/search/'.concat(this.newSearch);
+                if (this.offline) {
+                    if (this.newSearch === 'anime') {
+                        searchURL = 'public/' + ANIME_SEARCH_JSON;
+                    } else {
+                        searchURL = 'public/' + OTHER_SEARCH_JSON;
+                    }
+                }
+                this.$http.get(searchURL)
                     .then(function (res) {
                         this.lastSearch = this.newSearch;
                         this.results = res.data;
